@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI秘書 セットアップガイド（Windows）</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --fg:#1c1b19; --muted:#6b6862; --line:#e2ddd4;
+    --card:#ffffff; --accent:#2f6f4e; --accent-soft:#eaf3ee;
+    --warn:#8a5a00; --warn-soft:#fdf3e0; --danger:#9b2c2c; --danger-soft:#fdeaea;
+    --code-bg:#2b2a27; --code-fg:#f2efe9;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#161513; --fg:#eceae6; --muted:#a09c94; --line:#33312d;
+      --card:#1f1e1b; --accent:#7fc4a0; --accent-soft:#1e2a24;
+      --warn:#e0b062; --warn-soft:#2c2519; --danger:#e88b8b; --danger-soft:#2c1c1c;
+      --code-bg:#0f0e0d; --code-fg:#e8e5df;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#161513; --fg:#eceae6; --muted:#a09c94; --line:#33312d;
+    --card:#1f1e1b; --accent:#7fc4a0; --accent-soft:#1e2a24;
+    --warn:#e0b062; --warn-soft:#2c2519; --danger:#e88b8b; --danger-soft:#2c1c1c;
+    --code-bg:#0f0e0d; --code-fg:#e8e5df;
+  }
+  :root[data-theme="light"]{
+    --bg:#fbfaf8; --fg:#1c1b19; --muted:#6b6862; --line:#e2ddd4;
+    --card:#ffffff; --accent:#2f6f4e; --accent-soft:#eaf3ee;
+    --warn:#8a5a00; --warn-soft:#fdf3e0; --danger:#9b2c2c; --danger-soft:#fdeaea;
+    --code-bg:#2b2a27; --code-fg:#f2efe9;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,"Segoe UI","Yu Gothic UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+    line-height:1.85; font-size:16px; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:32px 20px 96px}
+  header.hero{border-bottom:3px solid var(--accent); padding-bottom:22px; margin-bottom:8px}
+  h1{font-size:1.9rem; line-height:1.35; margin:0 0 8px}
+  .sub{color:var(--muted); margin:0}
+  h2{
+    font-size:1.35rem; margin:52px 0 14px; padding-top:14px;
+    border-top:1px solid var(--line); line-height:1.4;
+  }
+  h2 .num{
+    display:inline-block; background:var(--accent); color:#fff; border-radius:6px;
+    font-size:.78rem; padding:2px 9px; margin-right:9px; vertical-align:.18em; letter-spacing:.04em;
+  }
+  h3{font-size:1.03rem; margin:30px 0 8px}
+  p{margin:.7em 0}
+  ol,ul{padding-left:1.5em; margin:.7em 0}
+  li{margin:.42em 0}
+  code{
+    background:var(--accent-soft); color:var(--fg); padding:.12em .4em;
+    border-radius:4px; font-size:.88em;
+    font-family:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace; word-break:break-all;
+  }
+  pre{
+    background:var(--code-bg); color:var(--code-fg); padding:14px 16px; border-radius:8px;
+    overflow-x:auto; font-size:.86rem; line-height:1.6;
+    font-family:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  }
+  pre code{background:none; color:inherit; padding:0}
+  .box{border-radius:8px; padding:14px 18px; margin:18px 0; border-left:4px solid}
+  .tip{background:var(--accent-soft); border-color:var(--accent)}
+  .warn{background:var(--warn-soft); border-color:var(--warn)}
+  .danger{background:var(--danger-soft); border-color:var(--danger)}
+  .box .label{font-weight:700; display:block; margin-bottom:3px}
+  .tip .label{color:var(--accent)} .warn .label{color:var(--warn)} .danger .label{color:var(--danger)}
+  .box p:first-of-type{margin-top:0} .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+  .tocbox{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 22px; margin:26px 0}
+  .tocbox h2{margin:0 0 10px; border:none; padding:0; font-size:1.05rem}
+  .tocbox ol{margin:0; padding-left:1.4em}
+  .tocbox a{color:var(--fg); text-decoration:none; border-bottom:1px solid var(--line)}
+  .tocbox a:hover{border-color:var(--accent); color:var(--accent)}
+  .file{
+    display:inline-block; background:var(--card); border:1px solid var(--line);
+    border-bottom-width:2px; border-radius:6px; padding:.1em .5em; font-weight:600;
+    font-family:"Cascadia Mono",Consolas,monospace; font-size:.9em; white-space:nowrap;
+  }
+  .tblwrap{overflow-x:auto; margin:18px 0}
+  table{border-collapse:collapse; width:100%; font-size:.94rem; min-width:460px}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top}
+  th{background:var(--accent-soft); font-weight:700; white-space:nowrap}
+  details{border:1px solid var(--line); border-radius:8px; padding:12px 18px; margin:10px 0; background:var(--card)}
+  details[open]{padding-bottom:6px}
+  summary{cursor:pointer; font-weight:600; margin:-2px 0}
+  summary::marker{color:var(--accent)}
+  .flow{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:18px; margin:20px 0; overflow-x:auto;
+  }
+  .flow pre{background:none; color:var(--fg); padding:0; font-size:.82rem; line-height:1.55}
+  .checklist{list-style:none; padding-left:0}
+  .checklist li{padding-left:1.9em; position:relative}
+  .checklist li::before{content:"☐"; position:absolute; left:.3em; color:var(--accent); font-size:1.1em}
+  .kbd{
+    background:var(--card); border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:4px; padding:.05em .45em; font-size:.85em; white-space:nowrap;
+  }
+  footer{margin-top:64px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="hero">
+  <h1>AI秘書 セットアップガイド</h1>
+  <p class="sub">Windows版 ／ プログラミングの知識は要りません</p>
+</header>
+
+<p>LINEに <strong>「明日10時に歯医者」</strong> と送るだけで Googleカレンダーに登録され、<strong>毎朝8時に今日の予定がLINEに届く</strong>、自分専用の秘書アプリです。</p>
+
+<p>このガイドの通りに<strong>上から順にやれば動きます</strong>。コードを書く場面はありません。やることは「アカウントを作る」「表示された文字列をコピーする」「ファイルをダブルクリックする」の3種類だけです。</p>
+
+<div class="box warn">
+  <span class="label">すでに使っている人へ（更新のしかた）</span>
+  <p>前の版を入れてある場合、<strong>STEP 1〜9をやり直す必要はありません</strong>。次の3つだけで新しい版に入れ替わります。</p>
+  <ol>
+    <li><span class="file">stop.bat</span> をダブルクリック（動いているものを止める）</li>
+    <li>新しい ZIP を展開し、中身を <code>C:\ai-hisho</code> に<strong>上書きコピー</strong>（「置き換える」を選ぶ）</li>
+    <li><span class="file">3_start.bat</span> をダブルクリック</li>
+  </ol>
+  <p>設定（<code>.env</code>）・Googleの許可（<code>token.json</code>）・記録（<code>schedule.db</code>）は ZIP に入っていないので、<strong>上書きしても消えません</strong>。<span class="file">1_setup.bat</span> や <span class="file">2_google_auth.bat</span> をやり直す必要もありません。</p>
+</div>
+
+<div class="box tip">
+  <span class="label">所要時間の目安</span>
+  <p>1〜2時間。半分は「アカウントを作って、届いたメールを確認する」待ち時間です。<strong>途中で中断してもOK</strong>。次に開いたところから再開できます。</p>
+</div>
+
+<div class="tocbox">
+  <h2>この先の流れ</h2>
+  <ol>
+    <li><a href="#s0">先に知っておくこと（費用・条件）</a></li>
+    <li><a href="#s1">LINEの「AI秘書」アカウントを作る</a></li>
+    <li><a href="#s2">Googleカレンダーを使えるようにする</a></li>
+    <li><a href="#s3">Gemini（AI）の鍵を取る</a></li>
+    <li><a href="#s4">ngrok（外から繋ぐ道具）を用意する</a></li>
+    <li><a href="#s5">フォルダを置く</a></li>
+    <li><a href="#s6">1_setup.bat を実行</a></li>
+    <li><a href="#s7">2_google_auth.bat を実行</a></li>
+    <li><a href="#s8">3_start.bat を実行</a></li>
+    <li><a href="#s9">動作テストと朝の通知の設定</a></li>
+    <li><a href="#use">使い方（送れる文章の例）</a></li>
+    <li><a href="#daily">毎日の運用で大事なこと</a></li>
+    <li><a href="#trouble">困ったとき</a></li>
+    <li><a href="#quit">やめたいとき</a></li>
+  </ol>
+</div>
+
+<h2 id="s0"><span class="num">STEP 0</span>先に知っておくこと</h2>
+
+<h3>どうやって動いているのか</h3>
+
+<div class="flow"><pre>あなた
+ │  LINEで「明日10時に歯医者」と送信
+ ▼
+LINE公式アカウント「AI秘書」
+ │  メッセージを転送
+ ▼
+ngrok  ← インターネットから あなたのPC への入口
+ │
+ ▼
+あなたのPCで動くプログラム
+ ├─ Gemini(AI)に「これ何の予定？」と聞く
+ ├─ Googleカレンダーに登録する
+ └─ LINEに「✅ 登録しました」と返す
+
+毎朝 8:00 → PCが自動でカレンダーを見て、今日の予定をLINEに送る</pre></div>
+
+<p>つまり<strong>あなたのPCがサーバーになります</strong>。ここが一番大事な性質で、次の制約に直結します。</p>
+
+<div class="box danger">
+  <span class="label">最重要：PCの電源が入っていないと受け付けません</span>
+  <p>PCがシャットダウン中・スリープ中は、LINEに送っても<strong>登録されず、届かなかったメッセージは後から再送もされません</strong>（LINE側の仕様）。</p>
+  <p>対策は <a href="#daily">「毎日の運用で大事なこと」</a> に書いてあります。<strong>ノートPCを開いたり閉じたりして使う人は、先にそこを読んでください。</strong></p>
+</div>
+
+<h3>必要なもの</h3>
+<ul class="checklist">
+  <li>Windows 10 または 11 のPC（なるべく電源を入れっぱなしにできるもの）</li>
+  <li>インターネット接続</li>
+  <li>普段使っている LINEアカウント（スマホのもの）</li>
+  <li>普段使っている Googleアカウント（予定を入れたいカレンダーのもの）</li>
+  <li>メールアドレス（アカウント登録の確認用）</li>
+</ul>
+
+<h3>かかるお金</h3>
+<div class="tblwrap">
+<table>
+  <tr><th>サービス</th><th>料金</th></tr>
+  <tr><td>LINE Messaging API</td><td><strong>無料</strong>（無料プランは月200通まで。ただし<strong>あなたの送信への返信は通数に数えられません</strong>。数えられるのは朝の自動通知だけなので、実際は月30通ほどで収まります）</td></tr>
+  <tr><td>Googleカレンダー API</td><td><strong>無料</strong></td></tr>
+  <tr><td>Gemini API</td><td>個人利用なら<strong>ほぼ無料〜月数十円</strong>。1回の解析が0.03円程度</td></tr>
+  <tr><td>ngrok</td><td><strong>無料</strong>（固定URL 1つまで無料）</td></tr>
+</table>
+</div>
+
+<div class="box warn">
+  <span class="label">クレジットカードについて</span>
+  <p>Gemini の設定の途中で、カード登録を求められることがあります。無料枠の範囲なら請求は発生しませんが、<strong>不安なら STEP 3 の「使いすぎ防止の上限」を必ず設定してください</strong>。上限を入れておけば、それ以上は課金されずに止まります。</p>
+</div>
+
+<h3>メモ帳を1つ開いておいてください</h3>
+<p>このあと<strong>4つの長い文字列</strong>をコピーします。あとでまとめて使うので、メモ帳（スタートメニューで「メモ帳」と検索）に貼り付けて残しておくと確実です。</p>
+<div class="tblwrap">
+<table>
+  <tr><th>何を</th><th>どこで取る</th></tr>
+  <tr><td>① チャネルアクセストークン</td><td>STEP 1（LINE）</td></tr>
+  <tr><td>② チャネルシークレット</td><td>STEP 1（LINE）</td></tr>
+  <tr><td>③ Gemini APIキー</td><td>STEP 3</td></tr>
+  <tr><td>④ ngrokの固定ドメイン と Authtoken</td><td>STEP 4</td></tr>
+</table>
+</div>
+
+<h2 id="s1"><span class="num">STEP 1</span>LINEの「AI秘書」アカウントを作る</h2>
+
+<p>普段のLINEとは別に、<strong>自分専用の公式アカウント</strong>を作ります。友だち追加すると、トーク画面が秘書との会話になります。</p>
+
+<h3>1-1. LINE公式アカウントを作る</h3>
+<ol>
+  <li><a href="https://manager.line.biz/" target="_blank" rel="noopener">https://manager.line.biz/</a> を開く</li>
+  <li>「LINEアカウントで登録」→ 普段のLINEでログイン（QRコードか、メール＋パスワード）</li>
+  <li>「アカウントを作成」で入力：
+    <ul>
+      <li><strong>アカウント名</strong>（必須）：<code>AI秘書</code> — スマホのLINEの友だちリスト・トーク画面に出る名前です</li>
+      <li><strong>メールアドレス</strong>（必須）：自分のメールアドレス（普段のGmailでOK）</li>
+      <li><strong>会社・事業者の所在国・地域</strong>（必須）：<code>日本</code> のまま</li>
+      <li><strong>会社・事業者名</strong>：<strong>空欄でOK</strong>（<code>●</code> が付いていない項目は任意）</li>
+      <li><strong>業種</strong>（必須）：大業種「個人」→ 小業種「個人（その他）」</li>
+    </ul>
+    <p>会社名や業種はLINE側の分類のために聞かれているだけで、<strong>動作には影響しません</strong>。個人利用なので深く考えず埋めて大丈夫です。</p>
+  </li>
+  <li>作成すると「LINE Official Account Manager」の管理画面に入ります</li>
+</ol>
+
+<h3>1-2. Messaging API を有効にする</h3>
+<p>これが「プログラムから操作できるようにする」スイッチです。</p>
+<ol>
+  <li>管理画面の右上 <strong>「設定」</strong> をクリック</li>
+  <li>左メニューの <strong>「Messaging API」</strong> をクリック</li>
+  <li><strong>「Messaging APIを利用する」</strong> ボタンをクリック</li>
+  <li><strong>プロバイダー</strong>を聞かれます。「プロバイダーを作成」を選び、<strong>自分の名前</strong>などを入力（何でもOK。あとから変えられません）</li>
+  <li>そのまま進めて「同意する」→ 完了</li>
+</ol>
+
+<div class="box tip">
+  <span class="label">プロバイダーって何？</span>
+  <p>「このアプリを作った人」の名前です。自分ひとりで使うので、深く考えず自分の名前で大丈夫です。</p>
+</div>
+
+<h3>1-3. 自動返信をオフにする（重要）</h3>
+<p>初期状態では「お問い合わせありがとうございます」のような定型文が自動で返ってしまい、秘書の返事とぶつかります。切ります。</p>
+<ol>
+  <li>同じ「設定」画面の左メニュー <strong>「応答設定」</strong> をクリック</li>
+  <li><strong>応答モード</strong> → <strong>「Bot」</strong> を選ぶ</li>
+  <li><strong>応答メッセージ</strong> → <strong>オフ</strong></li>
+  <li><strong>あいさつメッセージ</strong> → オフ推奨（お好みで）</li>
+  <li><strong>Webhook</strong> → <strong>オン</strong> ← これを忘れると何も動きません</li>
+  <li>「保存」</li>
+</ol>
+
+<div class="box tip">
+  <span class="label">「Webhook URL を入力してください」と言われたら → 空欄のままでOK</span>
+  <p>そのURLは <strong>STEP 4 で ngrok の固定ドメインを取って初めて決まる</strong>ので、今はまだ存在しません。空欄で保存できるならそのまま保存、URLが無いと保存できないなら<strong>この設定はいったん飛ばして STEP 2 へ進んでください</strong>。</p>
+  <p><strong>URLを手で打つ場面はありません。</strong> STEP 8 の <span class="file">3_start.bat</span> が LINE に自動で登録します。そのとき「Webhookの利用がオフです」と警告が出たら、この画面に戻ってトグルをオンにするだけです。</p>
+</div>
+
+<h3>1-4. 鍵を2つコピーする</h3>
+
+<div class="box warn">
+  <span class="label">ここで使うのは「別のサイト」です</span>
+  <p>いままで作業していた <strong>LINE Official Account Manager</strong>(<code>manager.line.biz</code>) ではなく、
+  <strong>LINE Developers</strong>(<code>developers.line.biz</code>) に移動します。</p>
+  <p>紛らわしいのですが、管理画面の「設定 → Messaging API」にも <strong>Channel secret は表示されます</strong>（そちらをコピーしてもOK）。
+  ただし<strong>チャネルアクセストークンは管理画面には存在しません</strong>。必ず LINE Developers 側で発行します。</p>
+  <p><strong>近道</strong>：管理画面の「設定 → Messaging API」の下にある
+  「その他の設定は<strong>LINE Developersコンソール</strong>から行えます」のリンクを押すと、そのチャネルの画面へ直接飛べます。</p>
+</div>
+
+<ol>
+  <li><a href="https://developers.line.biz/console/" target="_blank" rel="noopener">https://developers.line.biz/console/</a> を開く（さっきと違うサイトです）</li>
+  <li>同じLINEアカウントでログイン → さっき作ったプロバイダーをクリック → <code>AI秘書</code> のチャネルをクリック</li>
+  <li>上のタブを切り替えて、2つの文字列をメモ帳にコピー：</li>
+</ol>
+<div class="tblwrap">
+<table>
+  <tr><th>タブ</th><th>項目</th><th>メモに書く名前</th></tr>
+  <tr><td>チャネル基本設定</td><td><strong>チャネルシークレット</strong></td><td>②シークレット</td></tr>
+  <tr><td>Messaging API設定</td><td><strong>チャネルアクセストークン（長期）</strong></td><td>①アクセストークン</td></tr>
+</table>
+</div>
+<p>チャネルアクセストークンは「Messaging API設定」タブの<strong>一番下</strong>にあります。ページを最後までスクロールしてください。空欄なら <strong>「発行」</strong> ボタンを押すと出ます。<strong>とても長い文字列</strong>（200文字以上）なので、末尾まで全部コピーしてください。</p>
+
+<div class="box danger">
+  <span class="label">この2つは他人に見せないこと</span>
+  <p>これはあなたのLINE公式アカウントを操作できる鍵です。SNSやチャットに貼らないでください。</p>
+</div>
+
+<h3>1-5. スマホで友だち追加する</h3>
+<p>「Messaging API設定」タブにQRコードがあります。スマホのLINEで読み取って友だち追加してください。これがあなたと秘書のトーク画面になります。</p>
+
+<h2 id="s2"><span class="num">STEP 2</span>Googleカレンダーを使えるようにする</h2>
+
+<p>プログラムがあなたのカレンダーを読み書きできるよう、許可証を作ります。<strong>ここが一番画面が多い工程です</strong>が、やることは単純です。</p>
+
+<h3>2-1. プロジェクトを作る</h3>
+<ol>
+  <li><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">https://console.cloud.google.com/</a> を開く（予定を入れたいGoogleアカウントでログイン）</li>
+  <li>初回は利用規約への同意を求められます。同意して進む</li>
+  <li>画面上部の <strong>「プロジェクトを選択」</strong> → <strong>「新しいプロジェクト」</strong></li>
+  <li>プロジェクト名：<code>AI-hisho</code> → <strong>「作成」</strong></li>
+  <li>作成後、上部でそのプロジェクトが選ばれていることを確認（ここを間違えると後の作業が全部空振りします）</li>
+</ol>
+
+<div class="box warn">
+  <span class="label">Google Cloud では日本語の名前が使えません</span>
+  <p>プロジェクト名に <code>AI秘書</code> と入れると「<strong>名前に無効な文字が使用されています</strong>」と怒られます。
+  使えるのは<strong>英数字・ハイフン・スペース・<code>'</code>・<code>!</code></strong> だけです。</p>
+  <p>プロジェクト名は<strong>ただのラベルで動作には一切影響しません</strong>。<code>AI-hisho</code> のようなASCII名にしてください。
+  下に出る「プロジェクトID」は自動生成のままでOKです。</p>
+  <p>このあとの <strong>STEP 2-4 のクライアント名</strong>も同様に <code>AI-hisho desktop</code> としてください。</p>
+</div>
+
+<div class="box tip">
+  <span class="label">「My First Project」のまま進んでしまっても直さなくてOK</span>
+  <p>気づいたら画面上部が <code>My First Project</code> になっていた、ということがあります。
+  <strong>作り直す必要はありません。</strong>プロジェクト名は動作に一切関係ないからです。</p>
+  <p>大事なのは <strong>2-2・2-3・2-4 を全部おなじプロジェクトでやる</strong>ことだけ。
+  画面上部の名前がずっと同じであることを確認しながら進めてください。</p>
+  <p>途中で切り替えると「APIは有効なのに認証が通らない」という<strong>原因の分かりにくい失敗</strong>になります。混ぜないことだけが重要です。</p>
+</div>
+
+<h3>2-2. カレンダーAPIを有効にする</h3>
+<ol>
+  <li>左上の <span class="kbd">☰</span> メニュー → <strong>「APIとサービス」</strong> → <strong>「ライブラリ」</strong></li>
+  <li>検索欄に <code>Google Calendar API</code> と入力</li>
+  <li>出てきた「Google Calendar API」をクリック → <strong>「有効にする」</strong></li>
+</ol>
+
+<h3>2-3. 同意画面を作り、「本番環境」にする</h3>
+
+<div class="box danger">
+  <span class="label">ここを飛ばすと1週間で壊れます</span>
+  <p>「テスト」状態のままだと許可証が<strong>7日で自動的に失効</strong>し、毎週エラーになります。必ず「本番環境」にしてください。</p>
+</div>
+
+<ol>
+  <li>左メニュー <strong>「APIとサービス」</strong> → <strong>「OAuth同意画面」</strong>（新しい画面では <strong>「Google Auth Platform」→「ブランディング」</strong>）</li>
+  <li>まだ作っていなければ「開始」から作成：
+    <ul>
+      <li>アプリ名：<code>AI秘書</code></li>
+      <li>ユーザーサポートメール：自分のアドレス</li>
+      <li>対象：<strong>「外部」</strong>を選ぶ</li>
+      <li>連絡先メール：自分のアドレス</li>
+    </ul>
+  </li>
+  <li>作成後、左メニュー <strong>「対象」</strong>（または「OAuth同意画面」）を開く</li>
+  <li><strong>公開ステータス</strong>が「テスト」なら <strong>「アプリを公開」</strong> ボタンを押す → 確認</li>
+  <li><strong>「本番環境」</strong>になればOK</li>
+</ol>
+
+<div class="box tip">
+  <span class="label">審査は要りません</span>
+  <p>自分のカレンダーを読むだけなので、Googleの審査なしで「本番環境」にできます。「未確認のアプリ」という警告は出ますが、自分で作ったものなので問題ありません。</p>
+</div>
+
+<h3>2-4. 許可証（credentials.json）をダウンロードする</h3>
+<ol>
+  <li>左メニュー <strong>「クライアント」</strong>（または「認証情報」）</li>
+  <li><strong>「＋ クライアントを作成」</strong>（または「＋ 認証情報を作成」→「OAuth クライアント ID」）</li>
+  <li>アプリケーションの種類：<strong>「デスクトップアプリ」</strong> ← ここを間違えないでください</li>
+  <li>名前：<code>AI-hisho desktop</code> → <strong>「作成」</strong></li>
+  <li>出てきたダイアログの <strong>「JSONをダウンロード」</strong> をクリック</li>
+</ol>
+
+<p>ダウンロードされた <code>client_secret_xxxxx.json</code> は<strong>あとで使います</strong>。ダウンロードフォルダに置いたままでOK。STEP 5 で名前を変えて移動します。</p>
+
+<h2 id="s3"><span class="num">STEP 3</span>Gemini（AI）の鍵を取る</h2>
+
+<p>「明日10時に歯医者」という日本語を読み取る担当です。</p>
+
+<ol>
+  <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">https://aistudio.google.com/apikey</a> を開く（STEP 2 と同じGoogleアカウントで）</li>
+  <li><strong>「APIキーを作成」</strong> をクリック</li>
+  <li>プロジェクトを聞かれたら、STEP 2 で作った <code>AI-hisho</code> を選ぶ</li>
+  <li>出てきた <code>AIza...</code> で始まる文字列をメモ帳にコピー（<strong>③Geminiキー</strong>）</li>
+</ol>
+
+<div class="box warn">
+  <span class="label">使いすぎ防止の上限を入れておく</span>
+  <p>もし課金設定になっている場合は、<a href="https://aistudio.google.com/usage" target="_blank" rel="noopener">https://aistudio.google.com/usage</a> で月の上限（例：1,000円）を設定しておくと安心です。無料枠のままなら設定は不要ですが、入れておいて損はありません。</p>
+</div>
+
+<h2 id="s4"><span class="num">STEP 4</span>ngrok（外から繋ぐ道具）を用意する</h2>
+
+<p>ngrok は、あなたのPCの中で動くプログラムに<strong>インターネットから届くURLを1本くれる</strong>道具です。ルーターの設定変更などは要りません。自宅Wi-Fiのままで動きます。</p>
+
+<h3>4-1. アカウントを作る</h3>
+<ol>
+  <li><a href="https://dashboard.ngrok.com/signup" target="_blank" rel="noopener">https://dashboard.ngrok.com/signup</a> を開く</li>
+  <li>メールアドレス、または Google/GitHubアカウントで登録</li>
+  <li>届いたメールのリンクをクリックして認証</li>
+</ol>
+
+<h3>4-2. Authtoken をコピーする</h3>
+<ol>
+  <li>ログイン後、左メニュー <strong>「Your Authtoken」</strong>（または Getting Started → Your Authtoken）</li>
+  <li>表示された文字列をメモ帳にコピー（<strong>④Authtoken</strong>）</li>
+</ol>
+
+<h3>4-3. 固定ドメインをもらう（無料で1つ）</h3>
+
+<div class="box warn">
+  <span class="label">これを取らないと毎回URLが変わります</span>
+  <p>固定ドメインを使わないと、PCを再起動するたびにURLが変わり、そのつどLINE側の設定をやり直すことになります。<strong>必ず取ってください</strong>（無料です）。</p>
+</div>
+
+<ol>
+  <li>左メニュー <strong>「Domains」</strong>（Universal Gateway の下）</li>
+  <li><strong>「+ Create Domain」</strong>（または「+ New Domain」）をクリック</li>
+  <li><code>gentle-cat-4821.ngrok-free.dev</code> のような名前が自動で割り当てられます</li>
+  <li>この文字列をメモ帳にコピー（<strong>④ドメイン</strong>）</li>
+</ol>
+
+<div class="box tip">
+  <span class="label">コピーのしかた</span>
+  <p><code>https://</code> や末尾の <code>/</code> が付いていても大丈夫です。あとで自動的に取り除かれます。</p>
+</div>
+
+<h2 id="s5"><span class="num">STEP 5</span>フォルダを置く</h2>
+
+<h3>5-1. 展開する</h3>
+<ol>
+  <li>受け取ったZIPファイルを右クリック → <strong>「すべて展開」</strong></li>
+  <li>展開先を <code>C:\ai-hisho</code> に変更する（アドレス欄に直接この文字を打ち込む）</li>
+  <li>「展開」をクリック</li>
+</ol>
+
+<div class="box danger">
+  <span class="label">OneDrive の中に置かないでください</span>
+  <p>Windowsでは「ダウンロード」「デスクトップ」「ドキュメント」が<strong>自動的に OneDrive の中</strong>になっていることがよくあります。アドレス欄に <code>OneDrive</code> と出ていたらそこは避けてください。理由は3つあります。</p>
+  <ul>
+    <li><strong>鍵がクラウドに上がります</strong>。このあと作られる <code>.env</code>・<code>credentials.json</code>・<code>token.json</code> は、あなたのLINEとGoogleカレンダーを操作できる鍵そのものです</li>
+    <li><strong>プログラムが勝手に消えます</strong>。OneDriveは使っていないファイルを「クラウドのみ」に追い出すため、動作中に本体が無くなった扱いになります</li>
+    <li><strong>とても重くなります</strong>。このあと作られる作業用フォルダは数万ファイルあり、OneDriveが延々と同期しようとして、途中でエラーになることがあります</li>
+  </ul>
+</div>
+
+<div class="box warn">
+  <span class="label">置き場所は C:\ai-hisho にしてください</span>
+  <p>フォルダ名に日本語やスペースが混ざると<strong>途中で謎のエラーが出ることがあります</strong>。<code>C:\ai-hisho</code> なら確実です。<code>C:\</code> に置けないときは <code>C:\Users\（自分の名前）\ai-hisho</code> でも構いません（OneDriveの外であることが条件）。</p>
+  <p>展開後、<code>C:\ai-hisho</code> の中に <span class="file">1_setup.bat</span> が直接見えていれば正解です。<code>C:\ai-hisho\ai-hisho\1_setup.bat</code> のように<strong>二重になっていたら</strong>、内側のフォルダの中身を <code>C:\ai-hisho</code> に移動してください。</p>
+  <p><strong>置き場所を間違えても、<span class="file">1_setup.bat</span> を実行する前ならフォルダごと移動するだけで直ります。</strong>実行後に気づいた場合は、フォルダを移動したうえで <span class="file">1_setup.bat</span> からやり直してください。</p>
+</div>
+
+<h3>5-2. Googleの許可証を置く</h3>
+<ol>
+  <li>STEP 2-4 でダウンロードした <code>client_secret_xxxxx.json</code> を <code>C:\ai-hisho</code> にコピー</li>
+  <li>そのファイルの名前を <strong><code>credentials.json</code></strong> に変更する</li>
+</ol>
+
+<div class="box tip">
+  <span class="label">拡張子が見えないとき</span>
+  <p>ファイル名を変えたのに <code>credentials.json.json</code> になってしまう場合があります。エクスプローラーの <strong>「表示」→「表示」→「ファイル名拡張子」</strong> にチェックを入れると、正しい名前が見えるようになります。</p>
+</div>
+
+<h2 id="s6"><span class="num">STEP 6</span>1_setup.bat を実行</h2>
+
+<p><code>C:\ai-hisho</code> の中の <span class="file">1_setup.bat</span> を<strong>ダブルクリック</strong>します。黒い画面が開いて、自動で進みます。</p>
+
+<p>やってくれること：</p>
+<ul>
+  <li>Python（プログラムを動かす土台）を探す。無ければインストールを提案してくれます</li>
+  <li>必要な部品をインターネットから取ってくる（数分かかります）</li>
+  <li>ngrok を自動でダウンロードする</li>
+  <li>メモ帳に控えた鍵の入力を求めてくる</li>
+</ul>
+
+<h3>聞かれること</h3>
+<p>順番に4つ聞かれます。メモ帳から<strong>コピーして、黒い画面で右クリック</strong>すると貼り付けられます（<span class="kbd">Ctrl</span>+<span class="kbd">V</span> でもOK）。貼り付けたら <span class="kbd">Enter</span>。</p>
+<div class="tblwrap">
+<table>
+  <tr><th>聞かれるもの</th><th>メモの</th></tr>
+  <tr><td>LINE チャネルアクセストークン</td><td>①</td></tr>
+  <tr><td>LINE チャネルシークレット</td><td>②</td></tr>
+  <tr><td>Gemini API キー</td><td>③</td></tr>
+  <tr><td>ngrok の固定ドメイン</td><td>④ドメイン</td></tr>
+  <tr><td>ngrok Authtoken</td><td>④Authtoken</td></tr>
+</table>
+</div>
+
+<div class="box tip">
+  <span class="label">最後に緑色で「1/3 完了」と出れば成功</span>
+  <p>黄色い【注意】や赤い【失敗】が出たら、そこに書かれた指示に従ってから <span class="file">1_setup.bat</span> をもう一度ダブルクリックしてください。<strong>何度実行しても壊れません。</strong></p>
+</div>
+
+<details>
+  <summary>「Pythonが見つかりません」と言われた</summary>
+  <p>その場で「今すぐ自動でインストールしますか？」と聞かれるので <code>y</code> と入力してください。数分かかります。終わったら黒い画面を閉じて、<span class="file">1_setup.bat</span> をもう一度ダブルクリック。</p>
+  <p>自動インストールができない場合は手動で：</p>
+  <ol>
+    <li><a href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener">python.org</a> から「Windows installer (64-bit)」をダウンロード</li>
+    <li>インストーラの<strong>最初の画面</strong>で <strong>「Add python.exe to PATH」にチェック</strong>（重要）</li>
+    <li>「Install Now」でインストール</li>
+    <li><span class="file">1_setup.bat</span> をもう一度実行</li>
+  </ol>
+</details>
+
+<details>
+  <summary>青い「WindowsによってPCが保護されました」が出た</summary>
+  <p><strong>「詳細情報」</strong> をクリック → <strong>「実行」</strong> を押してください。ネットからダウンロードしたファイルに出る標準的な警告です。</p>
+</details>
+
+<h2 id="s7"><span class="num">STEP 7</span>2_google_auth.bat を実行</h2>
+
+<p><span class="file">2_google_auth.bat</span> をダブルクリック。<span class="kbd">Enter</span> を押すとブラウザが開きます。</p>
+
+<ol>
+  <li>自分のGoogleアカウントを選ぶ</li>
+  <li><strong>「このアプリは Google で確認されていません」</strong> と出たら：
+    <ul>
+      <li>左下の <strong>「詳細」</strong> をクリック</li>
+      <li><strong>「AI秘書（安全ではないページ）に移動」</strong> をクリック</li>
+    </ul>
+  </li>
+  <li>「カレンダーの予定の表示と編集」にチェック → <strong>「続行」</strong></li>
+  <li>ブラウザに「認証フローが完了しました」と出たら閉じてOK</li>
+</ol>
+
+<div class="box tip">
+  <span class="label">この警告は正常です</span>
+  <p>Googleの審査を受けていない個人アプリなので必ず出ます。作ったのは自分自身なので、そのまま進めて問題ありません。</p>
+</div>
+
+<p>黒い画面に <strong>「2/3 完了」</strong> と出れば成功です。</p>
+
+<h2 id="s8"><span class="num">STEP 8</span>3_start.bat を実行</h2>
+
+<p><span class="file">3_start.bat</span> をダブルクリック。これで完成です。</p>
+
+<p>やってくれること：</p>
+<ul>
+  <li>秘書プログラムと ngrok を起動する</li>
+  <li><strong>Windowsを起動するたび自動で立ち上がる</strong>ように登録する</li>
+  <li><strong>毎朝8時の通知</strong>を登録する</li>
+  <li><strong>LINE側のWebhook URLを自動で設定する</strong>（手作業不要）</li>
+</ul>
+
+<p>最後に緑色で <strong>「起動しました」</strong> と出れば成功です。この黒い画面は閉じて構いません（プログラムは裏で動き続けます）。</p>
+
+<div class="box warn">
+  <span class="label">「LINE側のWebhookの利用がオフです」と黄色で出たら</span>
+  <p>STEP 1-3 の設定が漏れています。<a href="https://manager.line.biz/" target="_blank" rel="noopener">LINE Official Account Manager</a> → 設定 → 応答設定 → <strong>Webhook をオン</strong> → 保存。そのあと <span class="file">3_start.bat</span> をもう一度実行してください。</p>
+</div>
+
+<details>
+  <summary>ファイアウォールの許可を聞かれた</summary>
+  <p>「プライベートネットワーク」にチェックを入れて「アクセスを許可する」を押してください。（この構成では基本的に聞かれないはずですが、環境によっては出ます）</p>
+</details>
+
+<h2 id="s9"><span class="num">STEP 9</span>動作テストと朝の通知の設定</h2>
+
+<h3>9-1. まず1通送ってみる</h3>
+<p>スマホのLINEで <code>AI秘書</code> のトークを開き、こう送ります：</p>
+<pre><code>明日10時にテスト</code></pre>
+<p>数秒で <code>✅ 登録しました</code> と返ってくれば<strong>成功です</strong>。Googleカレンダーを開くと、明日の10時に「テスト」が入っています。</p>
+
+<p>返事が来ないときは <span class="file">status.bat</span> をダブルクリックしてください。どこで止まっているかを上から順に調べて教えてくれます。</p>
+
+<h3>9-2. 朝の通知の宛先を設定する</h3>
+<p>「毎朝8時にあなたへ送る」には、あなたが誰なのかをプログラムに教える必要があります。<strong>9-1で1通送ったあと</strong>、次を実行してください。</p>
+
+<p><span class="file">4_set_user_id.bat</span> をダブルクリック。ログから自動で読み取って設定してくれます。</p>
+
+<h3>9-3. 通知を試す</h3>
+<p><span class="file">test_notify.bat</span> をダブルクリックすると、朝8時に流れるのと同じ通知が今すぐ届きます。</p>
+
+<div class="box tip">
+  <span class="label">何も届かないとき</span>
+  <p>今日の予定が1件も無い日は、<strong>あえて何も送りません</strong>（毎朝「予定なし」と通知されると邪魔なため）。カレンダーに今日の予定を1つ入れてから試してください。</p>
+  <p>また<strong>1日1回しか送らない</strong>仕組みです。2回目を試したい場合は <code>C:\ai-hisho\schedule.db</code> を削除してから再実行してください。</p>
+</div>
+
+<h3>9-4. 全部できたか確認</h3>
+<p><span class="file">status.bat</span> をダブルクリックして、7項目すべてが <strong>OK</strong> になっていれば完成です。</p>
+
+<h2 id="use">使い方</h2>
+
+<p>LINEに<strong>普通の日本語</strong>で送るだけです。決まった書き方はありません。</p>
+
+<div class="tblwrap">
+<table>
+  <tr><th>送る文章</th><th>動き</th></tr>
+  <tr><td><code>今日14時から会議</code></td><td>今日の14:00〜15:00 に登録</td></tr>
+  <tr><td><code>明日の10時に歯医者</code></td><td>登録</td></tr>
+  <tr><td><code>来週金曜18時に会食、場所は丸の内</code></td><td>登録（場所は詳細欄へ）</td></tr>
+  <tr><td><code>4/25 Aさんにメール</code></td><td>登録（時刻を書かないと9:00になります）</td></tr>
+  <tr><td><code>8/11-16 夏季休暇</code></td><td>6日間の終日予定として登録</td></tr>
+  <tr><td><code>毎週月曜10時にチーム会議</code></td><td>繰り返し予定として登録</td></tr>
+  <tr><td><code>毎月15日に家賃振込</code></td><td>繰り返し予定として登録</td></tr>
+  <tr><td><code>今週の予定は？</code></td><td>今週の一覧を返信</td></tr>
+  <tr><td><code>明日の予定教えて</code></td><td>明日の一覧を返信</td></tr>
+  <tr><td><code>8月の予定は？</code></td><td>その月の全予定を返信</td></tr>
+  <tr><td><code>4/24の打ち合わせを16時に変更</code></td><td>既存の予定を変更</td></tr>
+  <tr><td><code>さっきの予定を19時にして</code></td><td>直前に操作した予定を変更</td></tr>
+  <tr><td><code>金曜の会食キャンセル</code></td><td>削除</td></tr>
+</table>
+</div>
+
+<h3>自動で届くもの</h3>
+<ul>
+  <li><strong>毎朝 8:00</strong>：今日の予定（予定が無い日は送りません）</li>
+  <li><strong>月曜の朝 8:00</strong>：加えて今週ぶんの一覧</li>
+</ul>
+
+<h2 id="daily">毎日の運用で大事なこと</h2>
+
+<div class="box danger">
+  <span class="label">PCがスリープしている間のメッセージは失われます</span>
+  <p>LINEは届かなかったメッセージを<strong>再送しません</strong>。スリープ中に送った「明日10時に歯医者」は、PCを起こしても登録されません（返事も来ないので、失敗したことは分かります）。</p>
+</div>
+
+<h3>対策：スリープしないようにする</h3>
+<p>常用するなら、電源に繋いでいる間はスリープしない設定にしてください。</p>
+<ol>
+  <li><span class="kbd">Windowsキー</span> + <span class="kbd">I</span> で設定を開く</li>
+  <li><strong>「システム」→「電源」</strong>（ノートPCは「電源とバッテリー」）</li>
+  <li><strong>「画面とスリープ」</strong> を開く</li>
+  <li><strong>「電源接続時に、次の時間が経過した後にデバイスをスリープ状態にする」</strong> → <strong>「なし」</strong></li>
+</ol>
+<p>ノートPCの場合はさらに、<strong>「カバーを閉じたときの動作」</strong>を「何もしない」にする必要があります（コントロールパネル → ハードウェアとサウンド → 電源オプション → カバーを閉じたときの動作）。</p>
+
+<div class="box tip">
+  <span class="label">それでも取りこぼしたら</span>
+  <p>返事が来なかったメッセージは、PCを起こしてから<strong>もう一度同じ文章を送り直せば</strong>登録されます。「返事が来たかどうか」が成功の目印です。</p>
+  <p>なお<strong>朝8時の通知は取りこぼしにくい</strong>作りです。スリープで8時を過ぎても、PCが起きたときにまとめて実行されます。</p>
+</div>
+
+<h3>PCを再起動したあと</h3>
+<p>何もしなくて大丈夫です。Windowsにログインすると自動で立ち上がります。心配なら <span class="file">status.bat</span> で確認してください。</p>
+
+<h2 id="trouble">困ったとき</h2>
+
+<div class="box tip">
+  <span class="label">まず status.bat</span>
+  <p>何かおかしいと思ったら、迷わず <span class="file">status.bat</span> をダブルクリックしてください。設定・プロセス・通信・LINE側の設定・タスク登録を上から順に調べ、<strong>どこで止まっているかと、次に何をすべきか</strong>を表示します。</p>
+</div>
+
+<details>
+  <summary>LINEに送っても何も返ってこない</summary>
+  <ol>
+    <li><span class="file">status.bat</span> を実行して【失敗】の項目を見る</li>
+    <li>「Webhookサーバーが止まっています」→ <span class="file">3_start.bat</span> を実行</li>
+    <li>「Webhookの利用: オフ」→ <a href="https://manager.line.biz/" target="_blank" rel="noopener">LINE Official Account Manager</a> → 設定 → 応答設定 → Webhook をオン</li>
+    <li>すべてOKなのに返らない → PCがスリープしていた可能性。もう一度送ってみる</li>
+  </ol>
+</details>
+
+<details>
+  <summary>「⚠️ カレンダーに接続できません」と返ってくる</summary>
+  <p>Googleの許可が切れています。<strong>返信に出ている手順（<span class="file">2_google_auth.bat</span> をダブルクリック）をそのまま実行</strong>してください。それで直ります。</p>
+  <p>朝の通知でも同じことが起きると、<strong>LINEに同じ警告が1日1回届きます</strong>（黙って通知が止まらないようにするためです）。</p>
+  <p><strong>繰り返し起きるなら</strong> STEP 2-3 の「本番環境」になっていない可能性が高いです。テストのままだと7日で切れます。</p>
+</details>
+
+<details>
+  <summary>「エラーが発生しました」と返ってくる</summary>
+  <p>プログラムは動いていますが、途中で失敗しています。<code>C:\ai-hisho\logs\webhook.log</code> をメモ帳で開き、<strong>いちばん下</strong>を見てください。</p>
+  <ul>
+    <li><code>429</code> / <code>RESOURCE_EXHAUSTED</code> → Geminiの無料枠を使い切っています。時間をおくか、課金設定を確認</li>
+    <li><code>401</code> / <code>Invalid access token</code> → LINEのアクセストークンが違うか、再発行されています。<span class="file">1_setup.bat</span> で入れ直す</li>
+  </ul>
+</details>
+
+<details>
+  <summary>変な予定が登録される・日付がずれる</summary>
+  <p>AIの読み取り間違いです。もう少しはっきり書くと通ります（例：「明日」→「4/25」、「夕方」→「18時」）。</p>
+  <p>間違って登録されたものは <code>◯◯をキャンセル</code> と送れば消せます。Googleカレンダーから直接消しても構いません。</p>
+</details>
+
+<details>
+  <summary>朝8時に通知が来ない</summary>
+  <ol>
+    <li><span class="file">status.bat</span> の「1. 設定ファイル」で <strong>LINE_USER_ID</strong> が設定済みか確認。空なら <span class="file">4_set_user_id.bat</span></li>
+    <li>「6. 毎朝8時の通知」が「未登録」なら <span class="file">3_start.bat</span></li>
+    <li>その日の予定が0件なら、<strong>そもそも送りません</strong>（仕様）</li>
+    <li>「⚠️ カレンダーに接続できません」が届いていたら <span class="file">2_google_auth.bat</span> を実行</li>
+    <li><span class="file">test_notify.bat</span> で今すぐ試して切り分ける</li>
+  </ol>
+</details>
+
+<details>
+  <summary>PCを再起動したら動かなくなった</summary>
+  <p><span class="file">status.bat</span> で確認 → 止まっていれば <span class="file">3_start.bat</span> を実行。それで直ります。</p>
+  <p>毎回そうなる場合は、スタートアップ登録が消えている可能性があります。<span class="kbd">Windowsキー</span>+<span class="kbd">R</span> → <code>shell:startup</code> と入力してEnter → 「AI-Hisho Webhook」と「AI-Hisho Ngrok」のショートカットがあるか確認してください。無ければ <span class="file">3_start.bat</span> を実行し直します。</p>
+</details>
+
+<details>
+  <summary>ngrokのURLが変わってしまった / 外から繋がらない</summary>
+  <p>固定ドメインを使っているので、通常は変わりません。<code>C:\ai-hisho\logs\ngrok.log</code> の末尾を確認してください。</p>
+  <ul>
+    <li><code>ERR_NGROK_108</code>（同時接続数の上限）→ 別の場所でngrokが動いています。<span class="file">stop.bat</span> のあと <span class="file">3_start.bat</span></li>
+    <li><code>authentication failed</code> → Authtokenが未設定。<span class="file">1_setup.bat</span> をやり直す</li>
+    <li><code>unknown flag: --url</code> → ngrokが古い版です。<code>C:\ai-hisho\bin\ngrok.exe</code> を削除して <span class="file">1_setup.bat</span> を実行すると入れ直されます</li>
+  </ul>
+</details>
+
+<details>
+  <summary>設定した鍵を入れ直したい</summary>
+  <p><span class="file">1_setup.bat</span> をもう一度実行してください。今の値が表示され、<span class="kbd">Enter</span> だけ押せばそのまま、入力すれば上書きされます。終わったら <span class="file">3_start.bat</span> で反映します。</p>
+</details>
+
+<details>
+  <summary>それでも解決しないとき</summary>
+  <p>次の2つを渡してもらえれば、たいてい原因が分かります。</p>
+  <ol>
+    <li><span class="file">status.bat</span> の画面をスクリーンショット</li>
+    <li><code>C:\ai-hisho\logs\webhook.log</code> の<strong>末尾30行ほど</strong></li>
+  </ol>
+  <div class="box danger" style="margin-top:12px">
+    <span class="label">送る前に確認</span>
+    <p>ログに鍵が写り込むことはまずありませんが、<code>.env</code>・<code>credentials.json</code>・<code>token.json</code> は<strong>絶対に送らないでください</strong>。これらはあなたのカレンダーとLINEを操作できる鍵そのものです。</p>
+  </div>
+</details>
+
+<h2 id="quit">やめたいとき</h2>
+
+<h3>一時的に止める</h3>
+<p><span class="file">stop.bat</span> をダブルクリック。次にWindowsを起動するとまた立ち上がります。</p>
+
+<h3>自動起動をやめる</h3>
+<p><span class="file">uninstall.bat</span> をダブルクリック。自動起動と朝8時の通知が解除されます。設定ファイルは残るので、<span class="file">3_start.bat</span> でいつでも戻せます。</p>
+
+<h3>完全に消す</h3>
+<ol>
+  <li><span class="file">uninstall.bat</span> を実行</li>
+  <li><code>C:\ai-hisho</code> フォルダをゴミ箱へ</li>
+  <li><a href="https://manager.line.biz/" target="_blank" rel="noopener">LINE Official Account Manager</a> で公式アカウントを削除</li>
+  <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> で Gemini APIキーを削除</li>
+  <li><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud</a> で「AI秘書」プロジェクトを削除</li>
+  <li><a href="https://dashboard.ngrok.com/" target="_blank" rel="noopener">ngrok</a> でドメインを削除</li>
+</ol>
+
+<h2 id="files">ファイルの役割（参考）</h2>
+
+<div class="tblwrap">
+<table>
+  <tr><th>ファイル</th><th>役割</th></tr>
+  <tr><td><span class="file">1_setup.bat</span></td><td>最初の準備。何度でも実行できる（鍵の入れ直しにも使う）</td></tr>
+  <tr><td><span class="file">2_google_auth.bat</span></td><td>Googleカレンダーの利用許可を取る</td></tr>
+  <tr><td><span class="file">3_start.bat</span></td><td>起動＋自動起動の登録。<strong>迷ったらこれを実行</strong></td></tr>
+  <tr><td><span class="file">4_set_user_id.bat</span></td><td>朝の通知の宛先を設定（1通送ったあとに1回だけ）</td></tr>
+  <tr><td><span class="file">status.bat</span></td><td>状態チェック。<strong>困ったら最初にこれ</strong></td></tr>
+  <tr><td><span class="file">test_notify.bat</span></td><td>朝の通知を今すぐ試す</td></tr>
+  <tr><td><span class="file">stop.bat</span></td><td>止める</td></tr>
+  <tr><td><span class="file">uninstall.bat</span></td><td>自動起動を解除する</td></tr>
+  <tr><td><code>.env</code></td><td>鍵の保管場所。<strong>他人に見せない</strong></td></tr>
+  <tr><td><code>credentials.json</code> / <code>token.json</code></td><td>Googleの許可証。<strong>他人に見せない</strong></td></tr>
+  <tr><td><code>logs\</code></td><td>動作記録。トラブル時に見る</td></tr>
+  <tr><td><code>src\</code></td><td>プログラム本体</td></tr>
+</table>
+</div>
+
+<footer>
+  <p>不明点は、<span class="file">status.bat</span> の画面と <code>logs\webhook.log</code> の末尾を添えて聞いてください。</p>
+</footer>
+
+</div>
+</body>
+</html>

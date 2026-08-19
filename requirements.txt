@@ -1,0 +1,13 @@
+flask>=3.0.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+python-dateutil>=2.8.2
+google-api-python-client>=2.100.0
+# google-api-python-client の推移的依存だが notifier.py が直接 import するため明示する
+httplib2>=0.22.0
+google-auth>=2.23.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.1.0
+google-genai>=1.0.0
+# Windows には IANA タイムゾーンDBが無く、zoneinfo.ZoneInfo("Asia/Tokyo") が失敗するため必須
+tzdata>=2024.1; sys_platform == "win32"
