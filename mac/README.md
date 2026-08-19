@@ -54,6 +54,33 @@ cd ~/Claude/スケジュール管理
 - **フォルダの移動**: plist には絶対パスが焼かれるので、移動すると launchd が黙って失敗する。
   `status` が plist の `WorkingDirectory` と現在地を比較して検出し、`3_start` で直せる。
 
+## 相手が Claude Code を使う前提での同梱物
+
+この配布先は Claude Code を持っている（Windows 版の友人とはここが違う）ので、
+**AI に読ませる前提の資料を同梱している**。
+
+| ファイル | 役割 |
+|---|---|
+| `CLAUDE.md` | Claude Code がプロジェクト直下から**毎セッション自動で読み込む**運用メモ。人間向けの `0_START_HERE.html` とは別物 |
+| `.claude/settings.json` | `.env` / `token.json` / `credentials.json` の Read を拒否する権限設定 |
+
+`CLAUDE.md` に書いたのは、**AI が知らずに壊す可能性が高いこと**に絞ってある:
+
+- 持ち主はプログラマーではない → 平易な日本語で、操作は `.command` を案内する
+- `_service()` が対話認証に落ちないのは**仕様**（直そうとすると常駐がハングする）
+- `notifier` の週次/日次の独立実行とリトライを「簡潔に」まとめない（事故の再発）
+- 終日予定の `end` は Google が exclusive・内部は含む最終日（境界でだけ変換）
+- ポートが応答する ≠ 自分のが動いている／plist には絶対パスが焼かれている
+- `python -m src.main` を手で起動しない（LaunchAgent と衝突）
+- `schedule.db` を安易に消さない（通知済みフラグ）
+- 仕様として正しい挙動（0件の日は送らない・1日1回まで・Google の未確認警告）
+
+`.claude/settings.json` の deny は **file ツールを守るだけで、`cat` 等のシェル経由は塞げない**。
+あくまで補助で、実効的な歯止めは `CLAUDE.md` の指示側にある。そのことも `CLAUDE.md` に明記した。
+
+`CLAUDE.md` に書いたコマンド（`python -m pytest` / `-m ruff` / `-m mypy` /
+`pip install -r requirements-dev.txt`）は、**実際に動くことを確認してから記載**している。
+
 ## 実機確認の状況
 
 Windows 版と違い、**開発機が macOS なので実際に動かして確認できている**。確認済み:
@@ -80,3 +107,5 @@ Windows 版と違い、**開発機が macOS なので実際に動かして確認
 - `ngrok config add-authtoken` は**ユーザー共通の設定を書き換える**。テストで偽トークンを
   入れると自分の本番 ngrok 認証を壊すので注意
 - `check_gemini.py` は Windows 版と共有（`shared/`）。どちらのビルドも `scripts/` 直下に置く
+- `CLAUDE.md` を直したら、書いた手順が本当に動くか確かめてから配ること。
+  AI はそこに書いてあることを事実として扱うので、間違いがそのまま実行される

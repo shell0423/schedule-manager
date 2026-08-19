@@ -571,6 +571,19 @@ ngrok  ← インターネットから あなたのMac への入口
 
 <p>まず <span class="file">status.command</span> を実行してください。どこで止まっているかが上から順に出ます。</p>
 
+<div class="box tip">
+  <span class="label">Claude Code に聞けます</span>
+  <p>このフォルダには <code>CLAUDE.md</code> という<strong>AI向けの説明書</strong>を同梱してあります。
+  ターミナルでこのフォルダに移動して Claude Code を起動すると、AIが自動で読み込み、
+  <strong>このアプリの構造・ログの場所・よくある落とし穴を把握した状態</strong>で相談に乗れます。</p>
+  <div class="flow"><pre>cd ~/Documents/ai-hisho   ← 実際の置き場所に合わせてください
+claude</pre></div>
+  <p>「LINEに送っても返事が来ない」のように<strong>症状をそのまま伝えれば大丈夫</strong>です。
+  AIが <span class="file">status.command</span> の結果やログを見て原因を切り分けます。</p>
+  <p><strong>ただし <code>.env</code> の中身（鍵）は、AIにも他の誰にも貼り付けないでください。</strong>
+  必要な確認方法は <code>CLAUDE.md</code> に書いてあるので、AIの側で心得ています。</p>
+</div>
+
 <details>
   <summary>LINEに送っても何も返ってこない</summary>
   <ol>
@@ -666,6 +679,7 @@ ngrok  ← インターネットから あなたのMac への入口
   <tr><td>uninstall.command</td><td>自動起動をやめる</td></tr>
   <tr><td>.env</td><td>鍵の保存先。<strong>他人に見せないこと</strong></td></tr>
   <tr><td>logs/</td><td>動作記録。困ったときはここを見る</td></tr>
+  <tr><td>CLAUDE.md</td><td>AI（Claude Code）向けの説明書。人が読む必要はない</td></tr>
 </table>
 </div>
 
