@@ -1,42 +1,40 @@
-"""Windows 配布用 ZIP（友人に渡す一式）を組み立てる。
+"""macOS 配布用 ZIP（友人に渡す一式）を組み立てる。
 
 使い方:
-    .venv/bin/python build_windows_zip.py
+    .venv/bin/python build_mac_zip.py
 
-出力: dist/ai-hisho.zip
+出力: dist/ai-hisho-mac.zip
 
 やっていること:
-  - src/ など共有コードと windows/ 配下のスクリプトを1つのフォルダにまとめる
-  - .bat / .vbs は CRLF・ASCII（cmd.exe は非ASCIIの .bat を読み違える）
-  - .ps1 は CRLF・UTF-8 **BOM付き**（Windows PowerShell 5.1 は BOM が無いと
-    日本語を ANSI として読んで文字化けする）
+  - src/ など共有コードと mac/ 配下のスクリプトを1つのフォルダにまとめる
+  - .sh / .command は **LF**（CR が混ざると shebang が壊れて起動しない）
+  - .command / .sh に実行権(755)を立て、**ZIP に実行権ビットを保存する**
+    （macOS の展開では権限が復元される。これが無いとダブルクリックできない）
   - .env や token.json など秘密が1つでも混入したら中止する
-  - ZIP のルート直下にファイルを置く（「C:\\ai-hisho に展開」で正しい形になる）
+  - ZIP のルート直下にファイルを置く（展開してそのまま正しい形になる）
+
+Windows 版（build_windows_zip.py）との違いは、改行コードと実行権の扱いだけ。
 """
 
 from __future__ import annotations
 
 import shutil
+import stat
 import sys
 import zipfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-STAGE_DIR = BASE_DIR / "dist" / "ai-hisho"
-ZIP_PATH = BASE_DIR / "dist" / "ai-hisho.zip"
+STAGE_DIR = BASE_DIR / "dist" / "ai-hisho-mac"
+ZIP_PATH = BASE_DIR / "dist" / "ai-hisho-mac.zip"
 
-# 共有コード: プロジェクト直下からそのまま入れるもの
 SHARED_FILES = ["requirements.txt", "requirements-dev.txt", "pyproject.toml"]
 SHARED_DIRS = ["src", "tests"]
-
-# OS 非依存で Mac 版と共有する補助スクリプト。パッケージ内では scripts/ 直下に置く
-# （common.ps1 が scripts\check_gemini.py を参照するため、配置は変えられない）。
+# OS 非依存の補助スクリプト。Windows 版と同じ shared/ から取る（二重管理しない）
 SHARED_SCRIPTS = ["check_gemini.py"]
 
-# 絶対に入れてはいけないもの（存在チェックで二重に守る）
 FORBIDDEN = {".env", "credentials.json", "token.json", "schedule.db"}
 
-# .env のキーのうち、値が秘密でないもの（ひな形にも同じ値が載るので照合対象外）
 NON_SECRET_KEYS = {
     "GEMINI_MODEL",
     "GOOGLE_CALENDAR_ID",
@@ -48,8 +46,8 @@ NON_SECRET_KEYS = {
     "TZ",
 }
 
-CRLF_ASCII = {".bat", ".vbs"}
-CRLF_BOM = {".ps1"}
+# 実行権を立てる拡張子（.command はダブルクリックの入口）
+EXECUTABLE = {".sh", ".command"}
 
 
 def fail(msg: str) -> None:
@@ -68,23 +66,18 @@ def copy_tree(src: Path, dst: Path) -> None:
     )
 
 
-def normalize_line_endings(root: Path) -> None:
-    """Windows で確実に読める形に .bat / .vbs / .ps1 を書き直す。"""
+def normalize(root: Path) -> None:
+    """.sh / .command を LF に揃え、実行権を立てる。"""
     for path in sorted(root.rglob("*")):
-        if not path.is_file():
-            continue
-        suffix = path.suffix.lower()
-        if suffix not in CRLF_ASCII and suffix not in CRLF_BOM:
+        if not path.is_file() or path.suffix.lower() not in EXECUTABLE:
             continue
         text = path.read_text(encoding="utf-8")
-        text = text.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r\n")
-        if suffix in CRLF_ASCII:
-            if not text.isascii():
-                offenders = sorted({c for c in text if not c.isascii()})
-                fail(f"{path.name} に非ASCII文字があります: {''.join(offenders)}")
-            path.write_bytes(text.encode("ascii"))
-        else:
-            path.write_bytes(b"\xef\xbb\xbf" + text.encode("utf-8"))
+        if "\r" in text:
+            text = text.replace("\r\n", "\n").replace("\r", "\n")
+            path.write_text(text, encoding="utf-8")
+        if not text.startswith("#!"):
+            fail(f"{path.name} に shebang がありません（ダブルクリックで動きません）")
+        path.chmod(0o755)
 
 
 def assert_no_secrets(root: Path) -> None:
@@ -103,7 +96,6 @@ def assert_no_secrets(root: Path) -> None:
             continue
         key, value = line.split("=", 1)
         key, value = key.strip(), value.strip()
-        # 設定値（モデル名・パス等）は秘密でないので照合対象から外す
         if key in NON_SECRET_KEYS or len(value) < 12:
             continue
         secrets.append((key, value))
@@ -125,12 +117,12 @@ def build() -> None:
         shutil.rmtree(STAGE_DIR)
     STAGE_DIR.mkdir(parents=True)
 
-    windows_dir = BASE_DIR / "windows"
-    if not windows_dir.is_dir():
-        fail("windows/ が見つかりません")
+    mac_dir = BASE_DIR / "mac"
+    if not mac_dir.is_dir():
+        fail("mac/ が見つかりません")
 
-    # windows/ の中身をパッケージのルート直下へ（README.md は保守用なので除く）
-    for item in sorted(windows_dir.iterdir()):
+    # mac/ の中身をパッケージのルート直下へ（README.md は保守用なので除く）
+    for item in sorted(mac_dir.iterdir()):
         if item.name == "README.md":
             continue
         if item.is_dir():
@@ -148,7 +140,7 @@ def build() -> None:
     (STAGE_DIR / "logs").mkdir(exist_ok=True)
     (STAGE_DIR / "logs" / ".keep").write_text("", encoding="utf-8")
 
-    normalize_line_endings(STAGE_DIR)
+    normalize(STAGE_DIR)
     assert_no_secrets(STAGE_DIR)
 
     ZIP_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -156,14 +148,32 @@ def build() -> None:
         ZIP_PATH.unlink()
     with zipfile.ZipFile(ZIP_PATH, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in sorted(STAGE_DIR.rglob("*")):
-            if path.is_file():
-                zf.write(path, path.relative_to(STAGE_DIR).as_posix())
+            if not path.is_file():
+                continue
+            arcname = path.relative_to(STAGE_DIR).as_posix()
+            # ZipInfo を自分で作り、実行権を external_attr に載せる。
+            # zf.write() 任せでも mode は入るが、明示して意図を残す。
+            info = zipfile.ZipInfo.from_file(path, arcname)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = (path.stat().st_mode & 0xFFFF) << 16
+            zf.writestr(info, path.read_bytes())
+
+    # 実行権が本当に載ったか、書いた ZIP を読み直して確かめる
+    missing = []
+    with zipfile.ZipFile(ZIP_PATH) as zf:
+        for info in zf.infolist():
+            if Path(info.filename).suffix.lower() in EXECUTABLE:
+                mode = info.external_attr >> 16
+                if not mode & stat.S_IXUSR:
+                    missing.append(info.filename)
+    if missing:
+        fail(f"実行権が保存されていません: {missing}")
 
     size_kb = ZIP_PATH.stat().st_size / 1024
     with zipfile.ZipFile(ZIP_PATH) as zf:
         count = len(zf.namelist())
     print(f"作成しました: {ZIP_PATH}")
-    print(f"  {count} ファイル / {size_kb:.0f} KB")
+    print(f"  {count} ファイル / {size_kb:.0f} KB（実行権の保存を確認済み）")
     print(f"  展開用の中間フォルダ: {STAGE_DIR}")
 
 

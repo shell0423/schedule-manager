@@ -2,8 +2,9 @@
 
 LINE 公式アカウント「AI秘書」に自由文を送ると、Gemini が解析して Google カレンダーに登録・変更・削除する。毎朝8時に当日の予定、月曜は今週分も LINE に通知する。
 
-> **人に渡す**: Windows 用の配布一式は `windows/`（素材）と `build_windows_zip.py`（ZIP 生成）。
-> 相手が Claude Code も Python も持っていない前提で、ZIP を展開して bat を4つ叩けば動く。詳細は `windows/README.md`。
+> **人に渡す**: Windows 用は `windows/` ＋ `build_windows_zip.py`、Mac 用は `mac/` ＋ `build_mac_zip.py`。
+> 相手が Claude Code も Python も持っていない前提で、ZIP を展開して4つ叩けば動く。
+> 詳細は `windows/README.md` / `mac/README.md`。
 > Mac に自分で一から作り直す手順は `はじめて作る人へ.md`。
 
 ## 技術スタック
@@ -143,15 +144,27 @@ launchctl load   ~/Library/LaunchAgents/com.niki.schedule.webhook.plist
   .venv/bin/python -c "import requests; from src.config import LINE_CHANNEL_ACCESS_TOKEN as T; print(requests.put('https://api.line.me/v2/bot/channel/webhook/endpoint', headers={'Authorization':f'Bearer {T}'}, json={'endpoint':'https://<新URL>/webhook/line'}).status_code)"
   ```
 
-## 配布（Windows）
+## 配布（人に渡す）
 
 ```bash
-.venv/bin/python build_windows_zip.py     # → dist/ai-hisho.zip を渡す
+.venv/bin/python build_windows_zip.py     # → dist/ai-hisho.zip（Windows の友人へ）
+.venv/bin/python build_mac_zip.py         # → dist/ai-hisho-mac.zip（Mac の友人へ）
 ```
 
-`src/` は Mac 版と共有。Windows 固有（常駐＝スタートアップ + 再起動ループ、定時実行＝タスクスケジューラ、
-初心者向けガイド `0_START_HERE.html`）は `windows/` にのみ置く。ビルド時に改行コード・BOM・秘密ファイルの
-混入を機械的にチェックする（`windows/README.md` 参照）。
+`src/` と `tests/`・`requirements*`・`shared/check_gemini.py` は3者（自分の Mac / Windows 配布 / Mac 配布）で
+共有し、OS 固有のものだけを `windows/` と `mac/` に置く。設計意図と実機確認の状況は各フォルダの
+`README.md` が正本。
+
+| | Windows 版 | Mac 版 |
+|---|---|---|
+| 素材 | `windows/` | `mac/` |
+| 入口 | `.bat`（ASCII・CRLF） | `.command`（LF・**実行権**） |
+| 実処理 | PowerShell 5.1 互換 `.ps1` | bash 3.2 互換 `.sh` |
+| 常駐 | スタートアップ + 再起動ループ | LaunchAgent（KeepAlive） |
+| 設置場所 | `C:\ai-hisho` 固定 | どこでもよい（plist を設置時に生成） |
+| 実機確認 | **未実施**（Mac 上では静的検証のみ） | **実施済み**（開発機が macOS のため） |
+
+ビルド時に、改行コード・BOM／実行権・秘密ファイルの混入を機械的にチェックし、1つでも外れたら中止する。
 
 ## ファイル構成
 ```
@@ -166,7 +179,10 @@ launchctl load   ~/Library/LaunchAgents/com.niki.schedule.webhook.plist
 │   └── config.py
 ├── tests/
 ├── windows/               # Windows 配布物の素材（bat / ps1 / 0_START_HERE.html）
+├── mac/                   # Mac 配布物の素材（command / sh / 0_START_HERE.html）
+├── shared/                # OS 非依存で両配布に入れる補助（check_gemini.py）
 ├── build_windows_zip.py   # → dist/ai-hisho.zip
+├── build_mac_zip.py       # → dist/ai-hisho-mac.zip
 ├── com.niki.schedule.webhook.plist
 ├── com.niki.schedule.ngrok.plist
 ├── com.niki.schedule.notifier.plist
