@@ -164,9 +164,10 @@ def create_event(
     if recurrence:
         rule = recurrence if recurrence.startswith("RRULE:") else f"RRULE:{recurrence}"
         body["recurrence"] = [rule]
-    return (
+    created: dict[str, Any] = (
         _service().events().insert(calendarId=GOOGLE_CALENDAR_ID, body=body).execute()
     )
+    return created
 
 
 def _apply_period(
@@ -226,11 +227,12 @@ def update_event(event_id: str, **fields: Any) -> dict[str, Any]:
     )
     if fields.get("description"):
         event["description"] = fields["description"]
-    return (
+    updated: dict[str, Any] = (
         svc.events()
         .update(calendarId=GOOGLE_CALENDAR_ID, eventId=event_id, body=event)
         .execute()
     )
+    return updated
 
 
 def delete_event(event_id: str) -> None:
@@ -255,7 +257,10 @@ def list_events(
     }
     if query:
         params["q"] = query
-    return _service().events().list(**params).execute().get("items", [])
+    items: list[dict[str, Any]] = (
+        _service().events().list(**params).execute().get("items", [])
+    )
+    return items
 
 
 def search_event(
