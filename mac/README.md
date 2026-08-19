@@ -54,31 +54,36 @@ cd ~/Claude/スケジュール管理
 - **フォルダの移動**: plist には絶対パスが焼かれるので、移動すると launchd が黙って失敗する。
   `status` が plist の `WorkingDirectory` と現在地を比較して検出し、`3_start` で直せる。
 
-## 相手が Claude Code を使う前提での同梱物
+## 配布先の前提（Windows 版と違う点）
 
-この配布先は Claude Code を持っている（Windows 版の友人とはここが違う）ので、
-**AI に読ませる前提の資料を同梱している**。
+この配布先は **Claude Code を使っており、AI にも技術にも詳しい**。Windows 版の友人
+（Claude Code も Python も持たない前提）とは想定が違うので、資料の作り方を変えてある。
 
 | ファイル | 役割 |
 |---|---|
-| `CLAUDE.md` | Claude Code がプロジェクト直下から**毎セッション自動で読み込む**運用メモ。人間向けの `0_START_HERE.html` とは別物 |
-| `.claude/settings.json` | `.env` / `token.json` / `credentials.json` の Read を拒否する権限設定 |
+| `CLAUDE.md` | Claude Code がプロジェクト直下から**毎セッション自動で読む**運用メモ |
+| `.claude/settings.json` | `.env` / `token.json` / `credentials.json` の Read を deny |
+| `0_START_HERE.html` | 前提知識ゼロ向けの導入。冒頭に**慣れている人向けの近道**を置いてある |
 
-`CLAUDE.md` に書いたのは、**AI が知らずに壊す可能性が高いこと**に絞ってある:
+`CLAUDE.md` は噛み砕きではなく密度を優先して書く。噛み砕くと、直接手を動かせる相手に
+`.command` への迂回を勧めることになり、かえって遅くなる。載せているのは次の4種類:
 
-- 持ち主はプログラマーではない → 平易な日本語で、操作は `.command` を案内する
-- `_service()` が対話認証に落ちないのは**仕様**（直そうとすると常駐がハングする）
-- `notifier` の週次/日次の独立実行とリトライを「簡潔に」まとめない（事故の再発）
-- 終日予定の `end` は Google が exclusive・内部は含む最終日（境界でだけ変換）
-- ポートが応答する ≠ 自分のが動いている／plist には絶対パスが焼かれている
-- `python -m src.main` を手で起動しない（LaunchAgent と衝突）
-- `schedule.db` を安易に消さない（通知済みフラグ）
-- 仕様として正しい挙動（0件の日は送らない・1日1回まで・Google の未確認警告）
+1. **アーキテクチャと運用コマンド** — `3_start` が何を一括でやるか（unload → plist 再生成 →
+   load → 疎通 → LINE 側 URL 登録）まで書く。手で `launchctl` を叩くより速いと分かるように
+2. **セットアップの分担** — AI が代行できる範囲と、人間にしかできないこと
+   （OAuth のブラウザ同意・鍵の取得・LINE 側の応答設定）を明示。詳しい相手ほど
+   **セットアップごと AI に投げる**ので、ここが効く
+3. **「一見おかしいが意図的」な箇所を理由つきで** — 対話認証にフォールバックしない件、
+   週次/日次の分離とリトライ、終日 end の exclusive 変換、dict 検証、ポート判定。
+   詳しい相手＝コードを実際に触る相手なので、**善意の"修正"で壊れる場所**を先に潰しておく
+4. **環境固有の罠** — plist の絶対パス、ngrok のユーザー共通設定と同時1セッション、
+   Gatekeeper、Homebrew 3.14 の ensurepip 欠落
 
-`.claude/settings.json` の deny は **file ツールを守るだけで、`cat` 等のシェル経由は塞げない**。
-あくまで補助で、実効的な歯止めは `CLAUDE.md` の指示側にある。そのことも `CLAUDE.md` に明記した。
+`.claude/settings.json` の deny は **file ツールを守るだけで `cat` 等のシェル経由は塞げない**。
+補助であって歯止めは `CLAUDE.md` 側にある、と両方に明記した（消してよいが利用者に伝えること、
+とも書いてある）。
 
-`CLAUDE.md` に書いたコマンド（`python -m pytest` / `-m ruff` / `-m mypy` /
+`CLAUDE.md` に載せたコマンド（`python -m pytest` / `-m ruff` / `-m mypy` /
 `pip install -r requirements-dev.txt`）は、**実際に動くことを確認してから記載**している。
 
 ## 実機確認の状況

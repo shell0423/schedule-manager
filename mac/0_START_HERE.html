@@ -119,6 +119,27 @@
 <p>このガイドの通りに<strong>上から順にやれば動きます</strong>。コードを書く場面はありません。やることは「アカウントを作る」「表示された文字列をコピーする」「ファイルをダブルクリックする」の3種類だけです。</p>
 
 <div class="box tip">
+  <span class="label">慣れている人向けの近道</span>
+  <p>このガイドは前提知識ゼロの人向けに書いてあります。<strong>コマンドラインが平気なら、
+  同梱の <code>CLAUDE.md</code> を読んだ方が速い</strong>です（構成・運用コマンド・設計上の
+  地雷・秘密の扱いが凝縮してあります）。</p>
+  <p>やることは結局これだけです。</p>
+  <div class="flow"><pre>1. LINE / Google Cloud / Gemini / ngrok で鍵を取る   ← STEP 1〜4（クリック作業。ここは省けません）
+2. ./1_setup.command          venv・依存・ngrok取得・.env 対話生成
+3. credentials.json を直下に置く
+4. ./2_google_auth.command    OAuth 同意（ブラウザ）
+5. ./3_start.command          LaunchAgent 登録・起動・LINE 側 URL 自動設定
+6. LINEで1通送る → ./4_set_user_id.command   朝の通知の宛先を確定
+   確認は ./status.command（8項目を上から診断）</pre></div>
+  <p><strong>初回だけ Gatekeeper の解除が要ります</strong>（<span class="file">1_setup.command</span> を
+  右クリック →「開く」）。1本目を通せば、以降は同梱スクリプトがフォルダ全体の隔離属性を外します。
+  ターミナル派なら <code>xattr -dr com.apple.quarantine .</code> でも同じです。</p>
+  <p>Claude Code を使うなら、このフォルダで <code>claude</code> を起動して
+  「セットアップして」と言えば <code>CLAUDE.md</code> を読んで進めます。
+  <strong>ブラウザ同意（手順4）と鍵の取得（手順1）だけは人間の作業</strong>です。</p>
+</div>
+
+<div class="box tip">
   <span class="label">所要時間の目安</span>
   <p>1〜2時間。半分は「アカウントを作って、届いたメールを確認する」待ち時間です。<strong>途中で中断してもOK</strong>。次に開いたところから再開できます。</p>
 </div>
@@ -578,10 +599,11 @@ ngrok  ← インターネットから あなたのMac への入口
   <strong>このアプリの構造・ログの場所・よくある落とし穴を把握した状態</strong>で相談に乗れます。</p>
   <div class="flow"><pre>cd ~/Documents/ai-hisho   ← 実際の置き場所に合わせてください
 claude</pre></div>
-  <p>「LINEに送っても返事が来ない」のように<strong>症状をそのまま伝えれば大丈夫</strong>です。
-  AIが <span class="file">status.command</span> の結果やログを見て原因を切り分けます。</p>
-  <p><strong>ただし <code>.env</code> の中身（鍵）は、AIにも他の誰にも貼り付けないでください。</strong>
-  必要な確認方法は <code>CLAUDE.md</code> に書いてあるので、AIの側で心得ています。</p>
+  <p><code>CLAUDE.md</code> には、診断の順序（<span class="file">status.command</span> →
+  <code>logs/webhook.err.log</code>）に加えて、<strong>「一見おかしいが意図的にそうなっている箇所」</strong>を
+  理由つきで列挙してあります。AIが良かれと思って直すと壊れる場所が実際にあるためです。</p>
+  <p><code>.env</code> などの鍵は出力しない方針を明記し、<code>.claude/settings.json</code> でも
+  Read を deny してあります（ただしシェル経由までは塞げません）。</p>
 </div>
 
 <details>
