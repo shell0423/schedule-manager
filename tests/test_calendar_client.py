@@ -1,4 +1,5 @@
 """calendar_client の start/end 組み立てロジックの単体テスト（API 呼び出しなし）。"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -52,7 +53,10 @@ def test_all_day_to_timed() -> None:
     """終日 → 時刻付き（逆方向）。date が残らないこと。"""
     event = _all_day_event()
     _apply_period(event, "2026-08-11T09:00:00", None, False)
-    assert event["start"] == {"dateTime": "2026-08-11T09:00:00", "timeZone": "Asia/Tokyo"}
+    assert event["start"] == {
+        "dateTime": "2026-08-11T09:00:00",
+        "timeZone": "Asia/Tokyo",
+    }
     assert event["end"] == {"dateTime": "2026-08-11T10:00:00", "timeZone": "Asia/Tokyo"}
     assert "date" not in event["start"]
     assert "date" not in event["end"]
@@ -178,4 +182,3 @@ def test_refresh_success_saves_token(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     assert calendar_client._service() == "service"
     assert len(saved) == 1
-

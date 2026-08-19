@@ -1,4 +1,5 @@
 """LINE Webhook を受け、予定を登録・更新・削除・一覧表示する Flask アプリ。"""
+
 from __future__ import annotations
 
 import logging
@@ -66,7 +67,9 @@ def _handle_text(event: dict[str, Any]) -> None:
     text = event["message"]["text"]
     reply_token = event["replyToken"]
     # userId はログにしか出ない。初回セットアップで LINE_USER_ID を拾う唯一の手段。
-    logger.info("received userId=%s: %s", event.get("source", {}).get("userId", "-"), text)
+    logger.info(
+        "received userId=%s: %s", event.get("source", {}).get("userId", "-"), text
+    )
     recent = db.latest_event()
     parsed = parse_message(
         text, recent_event=_describe_event_row(recent) if recent else None

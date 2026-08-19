@@ -1,4 +1,5 @@
 """Google Calendar API の薄いラッパー。"""
+
 from __future__ import annotations
 
 import sys
@@ -68,7 +69,9 @@ def authorize() -> Credentials:
         AuthRequiredError: credentials.json が無い、または時間内に許可されなかった場合。
     """
     if not GOOGLE_CREDENTIALS_PATH.exists():
-        raise AuthRequiredError(f"credentials.json が見つかりません: {GOOGLE_CREDENTIALS_PATH}")
+        raise AuthRequiredError(
+            f"credentials.json が見つかりません: {GOOGLE_CREDENTIALS_PATH}"
+        )
     flow = InstalledAppFlow.from_client_secrets_file(
         str(GOOGLE_CREDENTIALS_PATH), SCOPES
     )

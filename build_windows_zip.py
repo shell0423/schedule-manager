@@ -13,6 +13,7 @@
   - .env や token.json など秘密が1つでも混入したら中止する
   - ZIP のルート直下にファイルを置く（「C:\\ai-hisho に展開」で正しい形になる）
 """
+
 from __future__ import annotations
 
 import shutil

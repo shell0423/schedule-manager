@@ -1,4 +1,5 @@
 """自由文 → 構造化データへの変換（Gemini API 使用）。"""
+
 from __future__ import annotations
 
 import json

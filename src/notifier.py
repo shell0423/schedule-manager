@@ -1,4 +1,5 @@
 """朝の通知バッチ（LaunchAgent から毎朝 08:00 に実行）。"""
+
 from __future__ import annotations
 
 import logging
@@ -82,7 +83,11 @@ def period_range(
             start = _month_start(year, month)
         except (ValueError, TypeError):
             start = _month_start(today.year, today.month)
-        label = f"{start.month}月" if start.year == today.year else f"{start.year}年{start.month}月"
+        label = (
+            f"{start.month}月"
+            if start.year == today.year
+            else f"{start.year}年{start.month}月"
+        )
         return start, _next_month_start(start), label
     if period == "date" and specific_date:
         start = specific_date.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -93,13 +98,13 @@ def period_range(
 
 
 def format_date(iso: str) -> str:
-    """"2026-12-04..." → "12/4(金)"。"""
+    """ "2026-12-04..." → "12/4(金)"。"""
     d = date.fromisoformat(iso[:10])
     return f"{d.month}/{d.day}({WEEKDAY_JA[d.weekday()]})"
 
 
 def format_stamp(iso: str) -> str:
-    """"2026-12-04T13:30:00" → "12/4(金) 13:30"。"""
+    """ "2026-12-04T13:30:00" → "12/4(金) 13:30"。"""
     dt = datetime.fromisoformat(iso)
     return f"{format_date(iso)} {dt.strftime('%H:%M')}"
 

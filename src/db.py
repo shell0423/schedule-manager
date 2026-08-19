@@ -1,4 +1,5 @@
 """SQLite による予定・通知状態の永続化。"""
+
 from __future__ import annotations
 
 import sqlite3
@@ -77,9 +78,7 @@ def upsert_event(
 def delete_event(google_event_id: str) -> None:
     """予定レコードを削除する。"""
     with connect() as conn:
-        conn.execute(
-            "DELETE FROM events WHERE google_event_id = ?", (google_event_id,)
-        )
+        conn.execute("DELETE FROM events WHERE google_event_id = ?", (google_event_id,))
 
 
 def latest_event() -> sqlite3.Row | None:

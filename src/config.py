@@ -1,4 +1,5 @@
 """環境変数・設定の読み込み。"""
+
 from __future__ import annotations
 
 import os

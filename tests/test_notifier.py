@@ -1,4 +1,5 @@
 """notifier モジュールの単体テスト。"""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -144,7 +145,10 @@ def test_format_events_timed_same_day_unchanged() -> None:
 
 
 def test_format_range_label_variants() -> None:
-    assert format_range_label("2026-12-04", "2026-12-05", True) == "12/4(金)〜12/5(土) 終日"
+    assert (
+        format_range_label("2026-12-04", "2026-12-05", True)
+        == "12/4(金)〜12/5(土) 終日"
+    )
     assert format_range_label("2026-12-04", "2026-12-04", True) == "12/4(金) 終日"
     assert format_range_label("2026-12-04", None, True) == "12/4(金) 終日"
     assert format_range_label("2026-12-04T13:30:00", None, False) == "12/4(金) 13:30"
@@ -263,4 +267,3 @@ class _FixedNow:
 
     def now(self, tz: object = None) -> datetime:
         return self._moment
-

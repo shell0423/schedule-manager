@@ -8,6 +8,7 @@
 
 鍵はコマンドライン引数ではなく環境変数で受け取る（プロセス一覧に出さないため）。
 """
+
 from __future__ import annotations
 
 import os

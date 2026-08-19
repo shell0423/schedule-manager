@@ -1,4 +1,5 @@
 """LINE Messaging API クライアント。"""
+
 from __future__ import annotations
 
 import base64

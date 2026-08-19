@@ -1,4 +1,5 @@
 """db モジュールの単体テスト。"""
+
 from __future__ import annotations
 
 import importlib

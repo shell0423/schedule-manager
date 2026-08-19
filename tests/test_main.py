@@ -1,4 +1,5 @@
 """main モジュールのヘルパー単体テスト。"""
+
 from __future__ import annotations
 
 from src.main import _recurrence_label
