@@ -121,6 +121,11 @@ launchctl load   ~/Library/LaunchAgents/com.niki.schedule.webhook.plist
 
 ## 既知の制約・注意
 
+> **「使えないケース」の一覧は `使えないケース.md` が正本**（届かない条件／入らない条件／
+> 仕様上できないこと）。「LINEに送ったのに入っていない」ときはまずそちらを見る。
+> 以下はこのファイル固有の運用メモ。
+
+
 - **Mac がスリープ/電源オフの間は Webhook を受けられない**。LINE は失敗した Webhook を再送しないため、その間に送ったメッセージは取りこぼす。常用するなら以下でスリープ抑止：
   ```bash
   sudo pmset -a sleep 0          # システムスリープ無効（電源接続時）
@@ -178,6 +183,7 @@ launchctl load   ~/Library/LaunchAgents/com.niki.schedule.webhook.plist
 │   ├── db.py              # SQLite
 │   └── config.py
 ├── tests/
+├── 使えないケース.md      # 届かない/入らない条件と仕様上の制約（正本）
 ├── windows/               # Windows 配布物の素材（bat / ps1 / 0_START_HERE.html）
 ├── mac/                   # Mac 配布物の素材（command / sh / 0_START_HERE.html）
 ├── shared/                # OS 非依存で両配布に入れる補助（check_gemini.py）

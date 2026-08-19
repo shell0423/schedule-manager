@@ -64,6 +64,7 @@ cd ~/Claude/スケジュール管理
 | `CLAUDE.md` | Claude Code がプロジェクト直下から**毎セッション自動で読む**運用メモ |
 | `.claude/settings.json` | `.env` / `token.json` / `credentials.json` の Read を deny |
 | `0_START_HERE.html` | 前提知識ゼロ向けの導入。冒頭に**慣れている人向けの近道**を置いてある |
+| `使えないケース.md` | 届かない/入らない条件と仕様上の制約。`CLAUDE.md` と HTML の両方から参照している |
 
 `CLAUDE.md` は噛み砕きではなく密度を優先して書く。噛み砕くと、直接手を動かせる相手に
 `.command` への迂回を勧めることになり、かえって遅くなる。載せているのは次の4種類:

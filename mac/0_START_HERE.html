@@ -592,6 +592,19 @@ ngrok  ← インターネットから あなたのMac への入口
 
 <p>まず <span class="file">status.command</span> を実行してください。どこで止まっているかが上から順に出ます。</p>
 
+<div class="box warn">
+  <span class="label">その前に：そもそも動かない条件かも</span>
+  <p>同梱の <code>使えないケース.md</code> に、<strong>アプリが原理的に受け付けられない条件</strong>と
+  <strong>仕様上できないこと</strong>をまとめてあります。とくに次の2点は故障ではありません。</p>
+  <ul>
+    <li><strong>Macがスリープ・シャットダウン中に送ったメッセージは失われます。</strong>
+    LINEは再送しないので、あとからMacを起こしても入りません</li>
+    <li><strong>過去の予定は変更・削除できません。</strong>また日付を言わない場合、
+    60日より先の予定は見つけられません</li>
+  </ul>
+  <p>「<code>✅ 登録しました</code> の返信が来なかったら入っていない」と覚えておくと確実です。</p>
+</div>
+
 <div class="box tip">
   <span class="label">Claude Code に聞けます</span>
   <p>このフォルダには <code>CLAUDE.md</code> という<strong>AI向けの説明書</strong>を同梱してあります。
@@ -688,7 +701,7 @@ claude</pre></div>
 
 <h2>ファイルの役割（参考）</h2>
 
-<div class="tablewrap">
+<div class="tblwrap">
 <table>
   <tr><th>ファイル</th><th>役割</th></tr>
   <tr><td>1_setup.command</td><td>実行環境の用意と、鍵の入力（最初に1回）</td></tr>
@@ -701,7 +714,8 @@ claude</pre></div>
   <tr><td>uninstall.command</td><td>自動起動をやめる</td></tr>
   <tr><td>.env</td><td>鍵の保存先。<strong>他人に見せないこと</strong></td></tr>
   <tr><td>logs/</td><td>動作記録。困ったときはここを見る</td></tr>
-  <tr><td>CLAUDE.md</td><td>AI（Claude Code）向けの説明書。人が読む必要はない</td></tr>
+  <tr><td>CLAUDE.md</td><td>AI（Claude Code）向けの説明書</td></tr>
+  <tr><td>使えないケース.md</td><td><strong>動かないと思ったらまずこれ。</strong>受け付けられない条件と仕様上の制約</td></tr>
 </table>
 </div>
 
