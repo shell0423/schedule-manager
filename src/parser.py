@@ -139,6 +139,11 @@ update で終日・期間予定に変えるルール（重要）:
 """
 
 
+def _unknown() -> dict[str, Any]:
+    """解析できなかったときの戻り値。"""
+    return {"action": "unknown", "message": "解析に失敗しました"}
+
+
 def parse_message(text: str, recent_event: str | None = None) -> dict[str, Any]:
     """自由文を解析して構造化データを返す。
 
@@ -157,7 +162,19 @@ def parse_message(text: str, recent_event: str | None = None) -> dict[str, Any]:
             contents=prompt,
             config={"response_mime_type": "application/json"},
         )
-        return json.loads(response.text)
+        # 安全フィルタで遮断されたときなど text が None になる。
+        # None を json.loads に渡すと TypeError になるので先に弾く。
+        if not response.text:
+            logger.error("Gemini returned no text")
+            return _unknown()
+        parsed = json.loads(response.text)
     except Exception:
         logger.exception("Gemini parse failed")
-        return {"action": "unknown", "message": "解析に失敗しました"}
+        return _unknown()
+    if not isinstance(parsed, dict):
+        # プロンプトはオブジェクトを要求しているが、配列や数値が返ることがある。
+        # 呼び出し側は .get() を使うのでオブジェクト以外だと AttributeError になる。
+        logger.error("Gemini returned non-object JSON: %r", parsed)
+        return _unknown()
+    result: dict[str, Any] = parsed
+    return result
