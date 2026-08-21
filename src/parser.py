@@ -9,6 +9,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from google import genai
+from google.genai import errors as genai_errors
 
 from src.config import GEMINI_API_KEY, GEMINI_MODEL, TZ
 
@@ -139,9 +140,35 @@ update で終日・期間予定に変えるルール（重要）:
 """
 
 
-def _unknown() -> dict[str, Any]:
+def _unknown(message: str = "解析に失敗しました") -> dict[str, Any]:
     """解析できなかったときの戻り値。"""
-    return {"action": "unknown", "message": "解析に失敗しました"}
+    return {"action": "unknown", "message": message}
+
+
+def _quota_message(exc: Exception) -> str | None:
+    """Gemini の 429 を、利用者が次に何をすべきか分かる文言にする。
+
+    ここを一律「解析に失敗しました」で返すと、上限超過なのかアプリの不具合なのか
+    区別できず原因に辿り着けない（実際に起きた）。
+
+    Returns:
+        429 のときは案内文、それ以外は None。
+    """
+    if not isinstance(exc, genai_errors.APIError) or exc.code != 429:
+        return None
+    detail = str(getattr(exc, "message", "") or "")
+    if "spending cap" in detail or "spend" in detail.lower():
+        # 支出上限。待っても直らず、人が上限を上げるまで復旧しない
+        return (
+            "⚠️ Gemini の月間支出上限に達しています\n"
+            "https://ai.studio/spend で上限を確認・変更してください\n"
+            "（上限は毎月1日にリセットされます）"
+        )
+    # レート制限や無料枠。時間をおけば回復する
+    return (
+        "⚠️ Gemini の利用上限に達しています\n"
+        "しばらく時間をおいてから、もう一度送ってください"
+    )
 
 
 def parse_message(text: str, recent_event: str | None = None) -> dict[str, Any]:
@@ -168,9 +195,10 @@ def parse_message(text: str, recent_event: str | None = None) -> dict[str, Any]:
             logger.error("Gemini returned no text")
             return _unknown()
         parsed = json.loads(response.text)
-    except Exception:
+    except Exception as exc:
         logger.exception("Gemini parse failed")
-        return _unknown()
+        quota = _quota_message(exc)
+        return _unknown(quota) if quota else _unknown()
     if not isinstance(parsed, dict):
         # プロンプトはオブジェクトを要求しているが、配列や数値が返ることがある。
         # 呼び出し側は .get() を使うのでオブジェクト以外だと AttributeError になる。
