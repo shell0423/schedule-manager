@@ -19,9 +19,13 @@ foreach ($k in @("LINE_CHANNEL_ACCESS_TOKEN", "LINE_CHANNEL_SECRET", "GEMINI_API
     if ($envMap.Contains($k) -and $envMap[$k] -ne "") { Write-Ok "$k 設定済み" } else { Write-Err2 "$k が空 → 1_setup.bat" }
 }
 if ($envMap.Contains("LINE_USER_ID") -and $envMap["LINE_USER_ID"] -ne "") {
-    Write-Ok "LINE_USER_ID 設定済み（朝の通知が届く）"
+    Write-Ok "LINE_USER_ID 設定済み（朝の通知が届く／本人以外からの操作を拒否）"
 } else {
-    Write-Warn2 "LINE_USER_ID が空 → 朝の通知だけ届かない。4_set_user_id.bat で設定"
+    Write-Err2 "LINE_USER_ID が空です。4_set_user_id.bat で設定してください"
+    Write-Host "      ・朝の通知が届きません" -ForegroundColor Yellow
+    Write-Host "      ・さらに、この状態では【誰でも】あなたのカレンダーを操作できます。" -ForegroundColor Yellow
+    Write-Host "        LINE公式アカウントのIDを知って友だち追加した人が、予定を" -ForegroundColor Yellow
+    Write-Host "        追加・変更・削除できてしまいます。設定すると本人以外は無視されます。" -ForegroundColor Yellow
 }
 if (Test-Path (Join-Path $Root "token.json")) { Write-Ok "Google 許可済み（token.json）" } else { Write-Err2 "token.json なし → 2_google_auth.bat" }
 

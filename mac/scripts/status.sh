@@ -14,8 +14,19 @@ step "1. 設定ファイル"
 if [ -f "$ENV_FILE" ]; then
   for key in LINE_CHANNEL_ACCESS_TOKEN LINE_CHANNEL_SECRET GEMINI_API_KEY NGROK_DOMAIN LINE_USER_ID; do
     v="$(env_get "$key")"
-    if [ -n "$v" ]; then ok "$key ($(printf '%s' "$v" | /usr/bin/cut -c1-6)…)"; else
-      if [ "$key" = "LINE_USER_ID" ]; then warn "$key 未設定（朝の通知だけ届きません → 4_set_user_id.command）"
+    if [ -n "$v" ]; then
+      if [ "$key" = "LINE_USER_ID" ]; then
+        ok "$key ($(printf '%s' "$v" | /usr/bin/cut -c1-6)…) 本人以外からの操作は拒否されます"
+      else
+        ok "$key ($(printf '%s' "$v" | /usr/bin/cut -c1-6)…)"
+      fi
+    else
+      if [ "$key" = "LINE_USER_ID" ]; then
+        err "$key 未設定 → ./4_set_user_id.command"
+        info "・朝の通知が届きません"
+        info "・さらに、この状態では【誰でも】あなたのカレンダーを操作できます。"
+        info "  公式アカウントのIDを知って友だち追加した人が予定を追加・変更・削除できます。"
+        info "  設定すると本人以外からのメッセージは無視されます。"
       else err "$key 未設定 → 1_setup.command"; fi
     fi
   done

@@ -1,5 +1,9 @@
 # スケジュール管理
 
+> **このリポジトリに個人情報は入れない。** ngrok の実ドメイン・LINE 公式アカウントID・
+> アカウントのメール・plist（`/Users/…` を含む）は `private/`（gitignore）に置き、
+> ここでは `<ngrokの固定ドメイン>` のようなプレースホルダで書く。
+
 LINE 公式アカウント「AI秘書」に自由文を送ると、Gemini が解析して Google カレンダーに登録・変更・削除する。毎朝8時に当日の予定、月曜は今週分も LINE に通知する。
 
 > **人に渡す**: Windows 用は `windows/` ＋ `build_windows_zip.py`、Mac 用は `mac/` ＋ `build_mac_zip.py`。
@@ -35,9 +39,9 @@ LINE「AI秘書」(@<公式アカウントID>)
 
 | ラベル | plist | 役割 | 起動 |
 |---|---|---|---|
-| `com.niki.schedule.webhook` | com.niki.schedule.webhook.plist | Flask（Webhook受信） | 常駐（KeepAlive） |
-| `com.niki.schedule.ngrok` | com.niki.schedule.ngrok.plist | ngrok トンネル | 常駐（KeepAlive） |
-| `com.niki.schedule.notifier` | com.niki.schedule.notifier.plist | 朝の通知バッチ | 毎日 08:00 |
+| `com.niki.schedule.webhook` | private/com.niki.schedule.webhook.plist | Flask（Webhook受信） | 常駐（KeepAlive） |
+| `com.niki.schedule.ngrok` | private/com.niki.schedule.ngrok.plist | ngrok トンネル | 常駐（KeepAlive） |
+| `com.niki.schedule.notifier` | private/com.niki.schedule.notifier.plist | 朝の通知バッチ | 毎日 08:00 |
 
 ## 設定済みの値（`.env`）
 - `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET`：AI秘書チャネル
@@ -99,7 +103,7 @@ cd ~/Claude/スケジュール管理
 # 状態確認
 launchctl list | grep niki.schedule
 curl -s http://localhost:5555/healthz                              # Flask ローカル
-curl -s https://<ngrokの固定ドメイン>/healthz     # 外部経由
+curl -s https://<ngrokの固定ドメイン>/healthz                        # 外部経由
 
 # ログ
 tail -f logs/webhook.log
@@ -136,7 +140,7 @@ launchctl load   ~/Library/LaunchAgents/com.niki.schedule.webhook.plist
   **30秒間隔で最大5回リトライ**する（`NETWORK_RETRIES` / `NETWORK_RETRY_WAIT_SEC`）。
   週次と日次は独立して実行し、**片方が失敗してももう片方は送る**（2026-08-17 に週次の DNS 失敗が
   日次まで巻き添えにして通知ゼロになった事故の対策）。認証切れなど恒久的な失敗はリトライせず即座に諦める。
-- **ngrok dev domain `<ngrokの固定ドメイン>`** は ngrok アカウント `<ngrokアカウントのメール>` のもの。authtoken はこのアカウントで Mac に設定済み。別アカウント（<別アカウント>）の domain は使えない。
+- **ngrok の固定ドメインと、それに紐づくアカウントは1つに固定**。authtoken はそのアカウントで Mac に設定済みで、別アカウントの domain は使えない。実際の値は `private/運用メモ.md`。
 - 無料 dev domain は再起動しても変わらないので、LINE 側 Webhook URL の再設定は不要。
 - `credentials.json` / `token.json` / `.env` / `schedule.db` はコミット禁止（`.gitignore` 済み）。
 - `token.json` が失効したら `.venv/bin/python -m src.calendar_client` で再認証（ブラウザが開く）。
@@ -189,9 +193,7 @@ launchctl load   ~/Library/LaunchAgents/com.niki.schedule.webhook.plist
 ├── shared/                # OS 非依存で両配布に入れる補助（check_gemini.py）
 ├── build_windows_zip.py   # → dist/ai-hisho.zip
 ├── build_mac_zip.py       # → dist/ai-hisho-mac.zip
-├── com.niki.schedule.webhook.plist
-├── com.niki.schedule.ngrok.plist
-├── com.niki.schedule.notifier.plist
+├── private/               # 個人情報（gitignore）: plist 3点・運用メモ
 ├── credentials.json       # Google OAuth（gitignore）
 ├── token.json             # Google トークン（gitignore）
 ├── .env                   # 各種キー（gitignore）

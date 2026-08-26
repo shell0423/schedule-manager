@@ -10,7 +10,13 @@ from zoneinfo import ZoneInfo
 from flask import Flask, abort, request
 
 from src import calendar_client, db, line_client
-from src.config import TZ, VERIFY_SIGNATURE, WEBHOOK_HOST, WEBHOOK_PORT
+from src.config import (
+    LINE_USER_ID,
+    TZ,
+    VERIFY_SIGNATURE,
+    WEBHOOK_HOST,
+    WEBHOOK_PORT,
+)
 from src.notifier import format_events, format_range_label, period_range
 from src.parser import parse_message
 
@@ -37,6 +43,8 @@ def webhook() -> tuple[str, int]:
             continue
         if event.get("message", {}).get("type") != "text":
             continue
+        if not _is_authorized(event):
+            continue
         try:
             _handle_text(event)
         except calendar_client.AuthRequiredError as exc:
@@ -47,6 +55,30 @@ def webhook() -> tuple[str, int]:
             logger.exception("handle event failed")
             _safe_reply(event, "エラーが発生しました")
     return "OK", 200
+
+
+def _is_authorized(event: dict[str, Any]) -> bool:
+    """送信者が持ち主本人かを判定する。
+
+    LINE 公式アカウントの ID を知られると誰でも友だち追加できてしまうため、
+    ここで弾かないと**第三者がカレンダーを作成・変更・削除できる**。
+
+    LINE_USER_ID が未設定のうちは通す。初回セットアップでは、1通送って
+    ログに出た userId を拾って設定する流れになっており、ここで弾くと
+    その1通目が処理されず手順が回らないため。
+
+    Returns:
+        処理してよければ True。
+    """
+    if not LINE_USER_ID:
+        return True
+    sender = event.get("source", {}).get("userId", "")
+    if sender == LINE_USER_ID:
+        return True
+    # 返信はしない。存在を知らせず、返信トークンも使わない。
+    # 設定ミスで自分が弾かれたときに気づけるよう userId はログに残す。
+    logger.warning("ignored message from unauthorized userId=%s", sender or "(不明)")
+    return False
 
 
 def _safe_reply(event: dict[str, Any], text: str) -> None:
